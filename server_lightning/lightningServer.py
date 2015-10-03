@@ -34,19 +34,17 @@ class FileName:
 
 
 	
-HOST = 'localhost'
-PORT = 8013
-BUFSIZE = 1024
-ADDR = (HOST, PORT)
+host = 'localhost'
+port = 8013
+address = (host, port)
 serversock = socket.socket()
-serversock.bind(ADDR)
+serversock.bind(address)
 serversock.listen(10)
 
-##receive fileData.dat
-#while True:
+##receive fileList.dat
 print 'Waiting For Connection..\n'
-clientsock, addr = serversock.accept()
-fileOpen = open("fileData.dat","wb")
+clientsock, addr = serversock.accept()  #Receive the file that contains the files that the client will send to server
+fileOpen = open("fileList.dat","wb")
 print 'Connection Established From: ', addr
 print '\n'
 l = clientsock.recv(1024)
@@ -54,19 +52,21 @@ while (l):
         fileOpen.write(l)
         l=clientsock.recv(1024)
 fileOpen.close()
-clientsock.close()
-##open fileData.dat and receive files
+clientsock.close() #The file received completely now you parse this file in order to receive one by one the files of the folder
+
+
+##open fileList.dat and receive files one by one
 import cPickle
-print "Receive fileData.dat so that server knows what to expect for...\n"
-with open("fileData.dat","rb") as inputData:
-    obj = cPickle.load(inputData)
-print "Receive files one by one...\n"
-for x in range(len(obj)):
-    tempFileName = obj[x]
-    print "filename, timeOfChange, examDate", tempFileName.filename, tempFileName.modificationDate, tempFileName.examinationDate
+print "Received fileList.dat so that server knows what to expect for...\n"
+with open("fileList.dat","rb") as inputData:
+    filenames = cPickle.load(inputData)
+print "Now Receive files one by one...\n"
+for x in range(len(filenames)):
+    filename = filenames[x]
+    print "filename, timeOfChange, examDate", filename.filename, filename.modificationDate, filename.examinationDate
     clientsock, addr = serversock.accept()
-    fileOpen = open(tempFileName.filename+'',"wb")
-    print 'Receiving file ', tempFileName.filename
+    fileOpen = open(filename.filename+'',"wb")
+    print 'Receiving file ', filename.filename
     print "\n"
     l = clientsock.recv(1024)
     print l
@@ -75,6 +75,8 @@ for x in range(len(obj)):
         l=clientsock.recv(1024)
     fileOpen.close()
     clientsock.close()
+	
+print "All files received...\n"
 
 
 
