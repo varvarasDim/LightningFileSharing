@@ -52,17 +52,21 @@ filenames=[]
 folders=[]
 
 print "Begin to parse data folder data...\n"
-for dirpath, dirnames, filenames in os.walk("."):
-    #print "CHANGE DIRECTORY"
+for dirpath, dirnames, files in os.walk("."):
+    print "CHANGE DIRECTORY"
     for folder in dirnames:
         print "\n    Folder Found...",folder
         if folder != 'HOME':
             folders.append(os.path.join(dirpath,folder))
-    for filename in filenames:
+	print "Search for files"
+    for filename in files:
         print "\n    Files Found...!",filename
         if filename != 'fileListLastAccess.dat' and filename != 'fileList.dat' and filename != 'lightningClient.py' :
             filenames.append(os.path.join(dirpath, filename))
 currentFilesInFolder =[]
+
+
+
 print "Extract MetaData of files...\n"
 for filename in filenames:
     t=os.path.getmtime(filename)
