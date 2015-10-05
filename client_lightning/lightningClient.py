@@ -74,6 +74,7 @@ while (1):
 			currentFilesInFolder.append(FileName(filename,datetime.datetime.fromtimestamp(t),datetime.datetime.now()))
 
 		##check if fileListLastAccess NOT exists (if TRUE means that it is the first time that the algorithm runs)
+		
 		if not os.path.isfile("fileListLastAccess.dat"):
 			print "Export file data to file fileList.dat...\n"
 			with open("fileList.dat","wb") as outputData:
@@ -122,17 +123,25 @@ while (1):
 			print "Create separate lists of new and old files...\n"
 			filesInFolderOld = [] #list that will replace previous data in fileListLastAccess.dat
 			filesInFolderNewOrUpdated = [] #list that will maintain only the new files or modified ones
+			#filesInFolderDeleted = fileNamesLA #Initialize the array with the filelist from the last access
+			filesInFolderDeleted = []
+			for f in fileNamesLA:
+				filesInFolderDeleted.append(f.filename)
 			
 			for fileX in currentFilesInFolder: 
+				 if any(x.filename == fileX.filename for x in fileNamesLA): # what remains at the list contains the files that were deleted
+					filesInFolderDeleted.remove(fileX.filename)
 				 if any(x.filename == fileX.filename and x.modificationDate == fileX.modificationDate for x in fileNamesLA): #check if fileX is a new one or a modified one
 					filesInFolderOld.append(fileX) #if it is old move it here
 					print "    File "+fileX.filename+" is NOT a new File..."
 				 else:
 					filesInFolderNewOrUpdated.append(fileX) #else move it to this list
 					print "    File "+fileX.filename+" is a new File..."
-					
-			if (len(filesInFolderNewOrUpdated) != 0):
-					print "Export fileList.dat thatn contains only new or modified files...\n"
+			print "DELETED_FILES"
+			print filesInFolderDeleted
+			#if there is a change in files then forward the change to the server also , else don't do anything
+			if (len(filesInFolderNewOrUpdated) != 0): 
+					print "Export fileList.dat that contains only new or modified files...\n"
 					with open("fileList.dat","wb") as outputData:
 						cPickle.dump(filesInFolderNewOrUpdated,outputData,cPickle.HIGHEST_PROTOCOL)
 					##send fileList.dat
@@ -147,7 +156,7 @@ while (1):
 					f.close()
 					s.close()
 					##send each file
-					print "Open fileList.dat to get filelist (DEBUG MODE)...\n"
+					print "Open fileList.dat to get filelist ...\n"
 					with open("fileList.dat","rb") as inputData:
 						filenames = cPickle.load(inputData)
 					for x in range(len(filenames)):
