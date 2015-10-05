@@ -47,11 +47,12 @@ f.close()
 print folders
 print filenames"""
 
+
 ##get metadata of file,serialize them and deserialize them
 filenames=[]
 folders=[]
 
-print "Begin to parse data folder data...\n"
+print "Begin to parse folder data...\n"
 for dirpath, dirnames, files in os.walk("."):
     print "CHANGE DIRECTORY"
     for folder in dirnames:
